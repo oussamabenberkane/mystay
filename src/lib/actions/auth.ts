@@ -84,6 +84,7 @@ export async function signupAction(formData: {
     hotel_id: hotel.id,
     role: 'client' as const,
     full_name: formData.fullName,
+    email: formData.email,
     phone: formData.phone ?? null,
     language: formData.language,
   } as any)

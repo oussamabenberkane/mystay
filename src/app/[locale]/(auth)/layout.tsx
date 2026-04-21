@@ -33,19 +33,27 @@ export default async function AuthLayout({
 
       {/* Language switcher */}
       <div className="absolute top-5 right-5 flex items-center gap-1 z-10">
-        {locales.map((l) => (
-          <Link
-            key={l}
-            href={`/${l}/login`}
-            className={`relative px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] transition-all duration-200 ${
-              l === locale
-                ? 'bg-[#1B2D5B] text-[#C9A84C] shadow-sm'
-                : 'text-[rgba(27,45,91,0.45)] hover:text-[#1B2D5B]'
-            }`}
-          >
-            {l}
-          </Link>
-        ))}
+        {locales.map((l) => {
+          const isArabic = l === 'ar'
+          const href = isArabic ? `/${locale}/login` : `/${l}/login`
+          return (
+            <Link
+              key={l}
+              href={href}
+              className={`relative px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] transition-all duration-200 ${
+                l === locale
+                  ? 'bg-[#1B2D5B] text-[#C9A84C] shadow-sm'
+                  : isArabic
+                  ? 'text-[rgba(27,45,91,0.25)] cursor-not-allowed'
+                  : 'text-[rgba(27,45,91,0.45)] hover:text-[#1B2D5B]'
+              }`}
+              aria-disabled={isArabic}
+              tabIndex={isArabic ? -1 : undefined}
+            >
+              {l}
+            </Link>
+          )
+        })}
       </div>
 
       {/* Global animations for all auth pages */}
@@ -98,6 +106,19 @@ export default async function AuthLayout({
         .auth-btn:hover::after { left: 150%; }
         .auth-btn:hover { box-shadow: 0 6px 24px rgba(27,45,91,0.28); transform: translateY(-1px); }
         .auth-btn:active { transform: translateY(0); }
+
+        /* Test account pill hover */
+        .test-account-btn:hover:not(:disabled) {
+          background: rgba(27,45,91,0.07) !important;
+          border-color: rgba(201,168,76,0.35) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(27,45,91,0.10);
+        }
+        .test-account-btn:hover:not(:disabled) span:first-child {
+          background: rgba(201,168,76,0.15) !important;
+          border-color: rgba(201,168,76,0.4) !important;
+        }
+        .test-account-btn:active:not(:disabled) { transform: translateY(0); }
       `}</style>
 
       <div className="w-full max-w-md px-4 py-14 z-10">

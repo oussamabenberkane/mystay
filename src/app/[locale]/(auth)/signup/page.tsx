@@ -6,17 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { signupAction } from '@/lib/actions/auth'
 
 const signupSchema = z.object({
-  fullName: z.string().min(2).max(100),
-  email: z.string().email(),
-  password: z.string().min(8)
+  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Must include an uppercase letter')
     .regex(/[0-9]/, 'Must include a number'),
   phone: z.string().optional(),
   language: z.enum(['en', 'fr', 'ar']),
-  hotelSlug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, hyphens'),
+  hotelSlug: z.string().min(2, 'Hotel code must be at least 2 characters').max(50).regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, hyphens'),
   terms: z.boolean().refine(v => v === true, 'You must accept the terms'),
 })
 
@@ -61,6 +62,7 @@ export default function SignupPage() {
   const locale = (params.locale as string) || 'en'
   const [serverError, setServerError] = useState<string | null>(null)
   const [password, setPassword] = useState('')
+  const t = useTranslations('auth')
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
@@ -112,7 +114,7 @@ export default function SignupPage() {
           <h1 className="auth-up-2 font-heading text-[22px] font-bold text-[#F8F0E8] tracking-[0.05em] mt-3">My Stay</h1>
           <div className="auth-up-3 flex items-center gap-2 mt-1">
             <div className="h-px w-4" style={{ background: 'rgba(201,168,76,0.45)' }} />
-            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#C9A84C]">Create Your Account</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#C9A84C]">{t('signup')}</p>
             <div className="h-px w-4" style={{ background: 'rgba(201,168,76,0.45)' }} />
           </div>
         </div>
@@ -133,21 +135,21 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="auth-up-3">
-              <FieldLabel>Full Name</FieldLabel>
+              <FieldLabel>{/* TODO: i18n */}Full Name</FieldLabel>
               <input {...register('fullName')} type="text" autoComplete="name" placeholder="Jean Dupont"
                 className={inputCls} style={inputStyle} />
               {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>}
             </div>
 
             <div className="auth-up-3">
-              <FieldLabel>Email</FieldLabel>
+              <FieldLabel>{t('email')}</FieldLabel>
               <input {...register('email')} type="email" autoComplete="email" placeholder="guest@example.com"
                 className={inputCls} style={inputStyle} />
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
             </div>
 
             <div className="auth-up-4">
-              <FieldLabel>Password</FieldLabel>
+              <FieldLabel>{t('password')}</FieldLabel>
               <input
                 {...register('password', { onChange: e => setPassword(e.target.value) })}
                 type="password" autoComplete="new-password" placeholder="••••••••"
@@ -210,9 +212,10 @@ export default function SignupPage() {
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="7" />
                     </svg>
+                    {/* TODO: i18n */}
                     Creating account…
                   </span>
-                ) : 'Create My Account'}
+                ) : t('signup')}
               </button>
             </div>
           </form>
@@ -220,9 +223,9 @@ export default function SignupPage() {
           <div className="auth-up-6 mt-6 flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />
             <p className="text-[11px] text-[#7A8BA8]">
-              Have an account?{' '}
+              {t('haveAccount')}{' '}
               <Link href={`/${locale}/login`} className="font-bold text-[#C9A84C] hover:text-[#1B2D5B] transition-colors">
-                Sign in
+                {t('login')}
               </Link>
             </p>
             <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />

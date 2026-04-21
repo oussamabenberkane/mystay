@@ -6,11 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { loginAction } from '@/lib/actions/auth'
 
+const TEST_ACCOUNTS = [
+  { role: 'Admin',  email: 'admin@legrand.com',  password: 'Admin1234!', icon: '◈' },
+  { role: 'Staff',  email: 'staff1@legrand.com', password: 'Staff1234!', icon: '◉' },
+  { role: 'Guest',  email: 'guest1@legrand.com', password: 'Guest1234!', icon: '◌' },
+] as const
+
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -82,10 +89,17 @@ export default function LoginPage() {
   const params = useParams()
   const locale = (params.locale as string) || 'en'
   const [serverError, setServerError] = useState<string | null>(null)
+  const t = useTranslations('auth')
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
+
+  async function loginAsTestAccount(email: string, password: string) {
+    setValue('email', email)
+    setValue('password', password)
+    await onSubmit({ email, password })
+  }
 
   async function onSubmit(data: LoginForm) {
     setServerError(null)
@@ -148,7 +162,7 @@ export default function LoginPage() {
           <OrnamentalDivider />
 
           <p className="auth-up-3 text-[10px] font-bold uppercase tracking-[0.25em] text-[#C9A84C] text-center mb-7">
-            Welcome Back
+            {t('loginTitle')}
           </p>
 
           {serverError && (
@@ -160,7 +174,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="auth-up-3">
               <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7A8BA8] mb-2">
-                Email Address
+                {t('email')}
               </label>
               <input
                 {...register('email')}
@@ -176,12 +190,12 @@ export default function LoginPage() {
             <div className="auth-up-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7A8BA8]">
-                  Password
+                  {t('password')}
                 </label>
                 <Link href={`/${locale}/forgot-password`}
                   className="text-[11px] font-semibold text-[#C9A84C] hover:text-[#1B2D5B] transition-colors"
                 >
-                  Forgot?
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <input
@@ -207,9 +221,10 @@ export default function LoginPage() {
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="7" />
                     </svg>
+                    {/* TODO: i18n */}
                     Signing in…
                   </span>
-                ) : 'Sign In to My Stay'}
+                ) : t('login')}
               </button>
             </div>
           </form>
@@ -218,15 +233,72 @@ export default function LoginPage() {
           <div className="auth-up-6 mt-7 flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />
             <p className="text-[11px] text-[#7A8BA8]">
-              New guest?{' '}
+              {t('noAccount')}{' '}
               <Link href={`/${locale}/signup`}
                 className="font-bold text-[#C9A84C] hover:text-[#1B2D5B] transition-colors"
               >
-                Create account
+                {t('signup')}
               </Link>
             </p>
             <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />
           </div>
+
+          {/* ── Dev-only test accounts ── */}
+          {process.env.NODE_ENV !== 'production' && (
+            <div className="auth-up-6 mt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-[0.2em] leading-none"
+                    style={{ background: 'rgba(201,168,76,0.12)', color: '#C9A84C', border: '0.5px solid rgba(201,168,76,0.3)' }}
+                  >
+                    DEV
+                  </span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(27,45,91,0.35)' }}>
+                    Test Accounts
+                  </span>
+                </div>
+                <div className="flex-1 h-px" style={{ background: 'rgba(27,45,91,0.07)' }} />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {TEST_ACCOUNTS.map(({ role, email, password, icon }) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => loginAsTestAccount(email, password)}
+                    disabled={isSubmitting}
+                    className="test-account-btn group relative flex flex-col items-center gap-1.5 rounded-xl py-3 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background: 'rgba(27,45,91,0.04)',
+                      border: '1px solid rgba(27,45,91,0.08)',
+                      transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  >
+                    <span
+                      className="flex items-center justify-center rounded-full text-[15px] leading-none"
+                      style={{
+                        width: 32, height: 32,
+                        background: 'rgba(201,168,76,0.08)',
+                        border: '1px solid rgba(201,168,76,0.2)',
+                        color: '#C9A84C',
+                        transition: 'background 0.2s, border-color 0.2s',
+                      }}
+                    >
+                      {icon}
+                    </span>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-[0.12em]"
+                      style={{ color: '#1B2D5B' }}
+                    >
+                      {role}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
