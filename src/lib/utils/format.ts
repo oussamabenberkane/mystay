@@ -1,7 +1,10 @@
 import { format, formatDistanceToNow } from 'date-fns'
 
-export function formatCurrency(amount: number, currency = 'EUR'): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)
+export function formatCurrency(amount: number): string {
+  return `DA ${new Intl.NumberFormat('fr-DZ', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount)}`
 }
 
 export function formatDate(date: string | Date): string {

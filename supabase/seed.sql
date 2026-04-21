@@ -17,19 +17,29 @@ INSERT INTO hotels (id, name, slug) VALUES
 -- ------------------------------------------------------------
 
 -- Le Grand Hôtel users
-INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, aud, role)
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, confirmation_token, recovery_token, email_change_token_new, email_change, email_change_token_current, phone_change, phone_change_token, reauthentication_token, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, aud, role)
 VALUES
-  ('10000000-0000-0000-0000-000000000001', 'admin@legrand.com',  crypt('Admin1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
-  ('10000000-0000-0000-0000-000000000002', 'staff1@legrand.com', crypt('Staff1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
-  ('10000000-0000-0000-0000-000000000003', 'staff2@legrand.com', crypt('Staff1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
-  ('10000000-0000-0000-0000-000000000004', 'guest1@legrand.com', crypt('Guest1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
-  ('10000000-0000-0000-0000-000000000005', 'guest2@legrand.com', crypt('Guest1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated');
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'admin@legrand.com',  crypt('Admin1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
+  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'staff1@legrand.com', crypt('Staff1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
+  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'staff2@legrand.com', crypt('Staff1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
+  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'guest1@legrand.com', crypt('Guest1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
+  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000000', 'guest2@legrand.com', crypt('Guest1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated');
 
 -- Seaside Resort users
-INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, aud, role)
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, confirmation_token, recovery_token, email_change_token_new, email_change, email_change_token_current, phone_change, phone_change_token, reauthentication_token, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, aud, role)
 VALUES
-  ('20000000-0000-0000-0000-000000000001', 'admin@seaside.com', crypt('Admin1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
-  ('20000000-0000-0000-0000-000000000002', 'guest@seaside.com', crypt('Guest1234!', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated');
+  ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'admin@seaside.com', crypt('Admin1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated'),
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'guest@seaside.com', crypt('Guest1234!', gen_salt('bf', 10)), now(), '', '', '', '', '', '', '', '', '{"provider":"email","providers":["email"]}', '{}', now(), now(), 'authenticated', 'authenticated');
+
+-- Auth identities (required for GoTrue password auth)
+INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) VALUES
+  (gen_random_uuid(), '10000000-0000-0000-0000-000000000001', 'admin@legrand.com',  '{"sub":"10000000-0000-0000-0000-000000000001","email":"admin@legrand.com"}',  'email', now(), now(), now()),
+  (gen_random_uuid(), '10000000-0000-0000-0000-000000000002', 'staff1@legrand.com', '{"sub":"10000000-0000-0000-0000-000000000002","email":"staff1@legrand.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '10000000-0000-0000-0000-000000000003', 'staff2@legrand.com', '{"sub":"10000000-0000-0000-0000-000000000003","email":"staff2@legrand.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '10000000-0000-0000-0000-000000000004', 'guest1@legrand.com', '{"sub":"10000000-0000-0000-0000-000000000004","email":"guest1@legrand.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '10000000-0000-0000-0000-000000000005', 'guest2@legrand.com', '{"sub":"10000000-0000-0000-0000-000000000005","email":"guest2@legrand.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '20000000-0000-0000-0000-000000000001', 'admin@seaside.com',  '{"sub":"20000000-0000-0000-0000-000000000001","email":"admin@seaside.com"}',  'email', now(), now(), now()),
+  (gen_random_uuid(), '20000000-0000-0000-0000-000000000002', 'guest@seaside.com',  '{"sub":"20000000-0000-0000-0000-000000000002","email":"guest@seaside.com"}',  'email', now(), now(), now());
 
 -- ------------------------------------------------------------
 -- PROFILES

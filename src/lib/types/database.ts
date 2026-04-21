@@ -9,9 +9,9 @@ export type Database = {
         Update: { id?: string; name?: string; slug?: string; logo_url?: string | null }
       }
       profiles: {
-        Row: { id: string; hotel_id: string; role: 'client' | 'staff' | 'admin'; full_name: string; phone: string | null; language: string; created_at: string }
-        Insert: { id: string; hotel_id: string; role: 'client' | 'staff' | 'admin'; full_name: string; phone?: string | null; language?: string }
-        Update: { full_name?: string; phone?: string | null; language?: string }
+        Row: { id: string; hotel_id: string; role: 'client' | 'staff' | 'admin'; full_name: string; email: string | null; phone: string | null; language: string; created_at: string }
+        Insert: { id: string; hotel_id: string; role: 'client' | 'staff' | 'admin'; full_name: string; email?: string | null; phone?: string | null; language?: string }
+        Update: { full_name?: string; email?: string | null; phone?: string | null; language?: string; role?: 'client' | 'staff' | 'admin' }
       }
       rooms: {
         Row: { id: string; hotel_id: string; number: string; type: string; floor: number | null; created_at: string }
