@@ -28,10 +28,15 @@ function getRequiredRole(path: string): Role | null {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const locale = pathname.split('/')[1] || defaultLocale
+  const firstSegment = pathname.split('/')[1] || ''
+  const locale = (locales as readonly string[]).includes(firstSegment) ? firstSegment : defaultLocale
 
   // Strip locale prefix for path matching
   const pathnameWithoutLocale = pathname.replace(/^\/(en|fr|ar)/, '') || '/'
+
+  // Skip auth logic for server action calls — they POST to the page path and must not be redirected
+  const isServerAction = request.method === 'POST' && request.headers.has('next-action')
+  if (isServerAction) return intlMiddleware(request)
 
   const { supabaseResponse, user, supabase } = await updateSession(request)
 
@@ -75,11 +80,17 @@ export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request)
   if (intlResponse && intlResponse.status !== 200) return intlResponse
 
+  // Propagate next-intl's locale headers (e.g. x-next-intl-locale) so that
+  // getRequestConfig receives the correct requestLocale instead of falling back to 'en'
+  intlResponse.headers.forEach((value, key) => {
+    supabaseResponse.headers.set(key, value)
+  })
+
   return supabaseResponse
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest\\.json|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json)$).*)',
   ],
 }
